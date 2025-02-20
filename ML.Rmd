@@ -168,18 +168,25 @@ class_labels[pred + 1]
 ```
 
 # SVM Model
-The Support Vector Machine (SVM) model is trained using the `svm()` function with a radial basis function (RBF) kernel. The model is evaluated using the confusion matrix.
+The Support Vector Machine (SVM) model is trained using the `svm()` function with a radial basis function (RBF) kernel. The model is evaluated using 5 fold cross-validation.
 
 ```{r,message=FALSE, warning=FALSE}
-svm_model <- svm(classe ~ ., data = train_data, kernel = "radial", cost = 0.5, gamma = 0.1)
-# Predict on test data
-predictions <- predict(svm_model, test_data)
 
-# Evaluate the model
-confusionMatrix(predictions, test_data$classe)
+# Define 5-fold cross-validation settings
+cv_control <- trainControl(method = "cv", number = 5)
 
+# Train SVM model with cross-validation
+svm_cv_model <- train(
+  classe ~ ., 
+  data = train_data, 
+  method = "svmRadial", 
+  trControl = cv_control,
+  tuneGrid = expand.grid(sigma = 0.1, C = 0.5)  # Equivalent to gamma and cost
+)
+
+svm_cv_model
 # Predict on the test dataset
-predict(svm_model, test_scaled)
+predict(svm_cv_model, test_scaled)
 ```
 
 
